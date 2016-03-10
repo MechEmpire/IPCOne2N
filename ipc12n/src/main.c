@@ -7,7 +7,6 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <tclDecls.h>
 
 #include "server/ipc12n_server.h"
 #include "client/ipc12n_client.h"
