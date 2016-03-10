@@ -10,3 +10,6 @@ include_directories(
 set(SOURCE_FILES src/main.c)
 
 add_executable(ipc12n ${SOURCE_FILES})
+
+
+#TODO add test and fix self-annotated code
