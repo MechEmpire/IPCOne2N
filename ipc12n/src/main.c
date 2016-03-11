@@ -2,83 +2,56 @@
 // Created by jcy on 3/10/16.
 //
 
-
 #include <stdio.h>
-#include <sys/socket.h>
 #include <unistd.h>
-#include <stdlib.h>
-
+#include "internal/ipc12n_fd_operation.h"
+#include "internal/ipc12n_opt_scanner.h"
+#include "internal/ipc12n_opt_counter.h"
+#include "internal/ipc12n_socket_pair.h"
 #include "server/ipc12n_server.h"
 #include "client/ipc12n_client.h"
 
-/*
- * Return a full-duplex "stream" pipe (a Unix domain socket)
- * with the two file descripors return in fd[0] and fd[1]
- */
-int s_pipe(int fd[2]);
+void exec_server_process(int (*socket_pairs)[2]);
 
-/*
- * Change a fd from one value to another
- */
-void dup_fd_2_fd(int new_fd, int old_fd);
+void exec_client_process(int (*socket_pairs)[2], int index);
 
-int main(int argc,char * argv[])
-{
-    int fd[argc - 2][2];
+int main(int argc, char *argv[]) {
+    scan_opts(argc, argv);
 
-    for (int i = 0; i < argc - 2; i++)
-    {
-        s_pipe(fd[i]);
-    }
+    const int client_num = get_client_count();
+    int socket_pairs[client_num][2];
+    create_socket_pair_n(socket_pairs, client_num);
 
-    pid_t pid;
-
+    exec_server_process(socket_pairs);
     for (int i = 0; i < argc - 1; i++) {
-        pid = fork();
-        if (pid == 0) {
-            //for child process
-            //change all the fd to the one in the defined file
-            if (i) {
-                for (int j = 0; j < argc - 2; j++) {
-                    close(fd[j][1]);
-                    dup_fd_2_fd((int) (client_fd(j)), fd[j][0]);
-                }
-            }
-            else {
-                int client_fd = fd[i - 1][1];
-                for (int j = 0; j < argc - 2; j++) {
-                    close(fd[j][0]);
-                    if (i - 1 != j) {
-                        close(fd[j][0]);
-                    }
-                }
-                dup_fd_2_fd((int) server_fd, client_fd);
-            }
+        exec_client_process(socket_pairs, i);
+    }
 
-            //exec the process
-            execv(argv[i + 2], NULL);
+    wait(NULL);
+    return 0;
+}
 
-            //exit
-            exit(0);
+void exec_server_process(int (*socket_pairs)[2]) {
+    pid_t pid = fork();
+    if (pid == 0) {
+        const int client_num = get_client_count();
+        close_all_client_fd_except(socket_pairs, client_num, -1);
+        for (int i = 0; i < client_num; i++) {
+            move_fd(client_fd(i), socket_pairs[i][kServer]);
         }
+        execv(get_server_name(), NULL);
+        exit(0);
     }
-
-    //for parent process
-    if (pid != 0) {
-        //wait all the child process to exit
-        wait(NULL);
-    }
-
 }
 
-
-int s_pipe(int fd[2]) {
-    return (socketpair(AF_UNIX, SOCK_STREAM, 0, fd));
-}
-
-void dup_fd_2_fd(int new_fd, int old_fd) {
-    if (new_fd != old_fd) {
-        dup2(new_fd, old_fd);
-        close(old_fd);
+void exec_client_process(int (*socket_pairs)[2], int index) {
+    pid_t pid = fork();
+    if (pid == 0) {
+        const int client_num = get_client_count();
+        close_all_client_fd_except(socket_pairs, client_num, -1);
+        close_all_server_fd(socket_pairs, client_num);
+        move_fd(server_fd, socket_pairs[index][kClient]);
+        execv(get_client_name(index), NULL);
+        exit(0);
     }
 }
