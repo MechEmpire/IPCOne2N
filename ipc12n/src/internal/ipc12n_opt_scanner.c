@@ -11,13 +11,13 @@ const struct option long_options[] = {
         {"client", required_argument, 0, 'c'},
         {"help",   no_argument,       0, 'h'},
         {"server", required_argument, 0, 's'},
-        {0,        0,                 0, 0},
+        {0, 0,                        0, 0},
 };
 
 struct help {
     char value;
     const char *name;
-    const char *discribtion;
+    const char *disc;
 };
 
 const struct help helps[] = {
@@ -31,9 +31,8 @@ static void print_help() {
     printf("Create ipc between client and server\n");
     printf("\n");
 
-    int i;
-    for (i = 0; i < sizeof(helps) / sizeof(struct help); i++) {
-        printf("  -%c, --%-20s%s\n", helps[i].value, helps[i].name, helps[i].discribtion);
+    for (int i = 0; i < sizeof(helps) / sizeof(struct help); i++) {
+        printf("  -%c, --%-20s%s\n", helps[i].value, helps[i].name, helps[i].disc);
     }
 
     printf("\n");

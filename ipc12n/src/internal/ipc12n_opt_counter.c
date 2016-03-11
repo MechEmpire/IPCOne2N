@@ -2,7 +2,7 @@
 // Created by jiang on 2016/3/11.
 //
 
-#include <crtdbg.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>

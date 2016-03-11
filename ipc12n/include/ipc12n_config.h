@@ -7,8 +7,8 @@
 
 enum fd_id
 {
-    kServer = 0,
-    kClient = 1,
+    kFdConnectToServer = 0,
+    kFdConnectToClient = 1,
 };
 
 #endif //IPC12N_DISTRIBUTION_IPC12N_CONFIG_H
