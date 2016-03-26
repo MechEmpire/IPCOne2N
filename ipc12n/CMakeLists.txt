@@ -7,6 +7,9 @@ include_directories(
         ${ipc12n_SOURCE_DIR}
 )
 
+add_subdirectory(test
+        )
+
 set(INTERNAL_HEADER_FILES
         include/internal/ipc12n_fd_operation.h
         include/internal/ipc12n_exec_process.h

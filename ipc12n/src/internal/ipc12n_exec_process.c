@@ -11,7 +11,7 @@
 #include "server/ipc12n_server.h"
 
 void exec_server_process(int (*socket_pairs)[2]) {
-    __darwin_pid_t pid = fork();
+    pid_t pid = fork();
     if (pid == 0) {
         const int client_num = get_client_count();
         close_all_client_fd_except(socket_pairs, client_num, -1);
@@ -24,7 +24,7 @@ void exec_server_process(int (*socket_pairs)[2]) {
 }
 
 void exec_client_process(int (*socket_pairs)[2], int index) {
-    __darwin_pid_t pid = fork();
+    pid_t pid = fork();
     if (pid == 0) {
         const int client_num = get_client_count();
         close_all_client_fd_except(socket_pairs, client_num, index);

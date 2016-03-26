@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     create_socket_pair_n(socket_pairs, client_num);
 
     exec_server_process(socket_pairs);
-    for (int i = 0; i < argc - 1; i++) {
+    for (int i = 0; i < client_num; i++) {
         exec_client_process(socket_pairs, i);
     }
 
